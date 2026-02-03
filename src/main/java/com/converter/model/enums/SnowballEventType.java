@@ -3,7 +3,7 @@ package com.converter.model.enums;
 import java.util.Arrays;
 import java.util.Set;
 
-public enum EventType {
+public enum SnowballEventType {
     CASH_IN("Cash_In"),
     CASH_OUT("Cash_Out"),
     CASH_GAIN("Cash_Gain"),
@@ -11,7 +11,7 @@ public enum EventType {
     BUY("Buy");
 
     private String value;
-    EventType(String value) {
+    SnowballEventType(String value) {
         this.value = value;
     }
 
@@ -19,8 +19,8 @@ public enum EventType {
         return value;
     }
 
-    public static EventType getValueOf(String eventType) {
-        return Arrays.stream(EventType.values()).filter(evType -> eventType.equals(evType.getValue())).findFirst().get();
+    public static SnowballEventType getValueOf(String eventType) {
+        return Arrays.stream(SnowballEventType.values()).filter(evType -> eventType.equals(evType.getValue())).findFirst().get();
     }
 
     public boolean isCashInOut() {

@@ -3,7 +3,7 @@ package com.converter.model.enums;
 import java.util.Arrays;
 import java.util.Set;
 
-public enum OperationType {
+public enum FinstoreOperationType {
     CASH_IN("Пополнение кошелька"),
     CASH_OUT("Вывод денежных средств"),
     INCOME("Получение дохода"),
@@ -11,7 +11,7 @@ public enum OperationType {
     BUY_TOKENS("Покупка токенов");
 
     private String value;
-    OperationType(String value) {
+    FinstoreOperationType(String value) {
         this.value = value;
     }
 
@@ -19,8 +19,8 @@ public enum OperationType {
         return value;
     }
 
-    public static OperationType getValueOf(String operationType) {
-        return Arrays.stream(OperationType.values()).filter(opType -> operationType.equals(opType.getValue())).findFirst().get();
+    public static FinstoreOperationType getValueOf(String operationType) {
+        return Arrays.stream(FinstoreOperationType.values()).filter(opType -> operationType.equals(opType.getValue())).findFirst().get();
     }
 
     public boolean isOperationWithoutTokens() {

@@ -1,7 +1,7 @@
 package com.converter.parsers.finstore;
 
 import com.converter.model.enums.Currency;
-import com.converter.model.enums.OperationType;
+import com.converter.model.enums.FinstoreOperationType;
 import com.converter.model.TableRow;
 import com.converter.model.TheadRow;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,7 +72,7 @@ public class FinstoreTableParser {
 
             String tName = StringUtils.EMPTY;
             try {
-                tName = OperationType.getValueOf(opType).isOperationWithoutTokens()
+                tName = FinstoreOperationType.getValueOf(opType).isOperationWithoutTokens()
                         ? StringUtils.EMPTY
                         : getSingleText(cells.get(1));
                 String tAmountRaw = getSingleText(cells.get(2));
