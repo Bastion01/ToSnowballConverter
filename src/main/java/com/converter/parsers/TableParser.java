@@ -79,7 +79,9 @@ public class TableParser {
 
             String tName = StringUtils.EMPTY;
             try {
-                tName = OperationType.getValueOf(opType).isOperationWithoutTokens() ? StringUtils.EMPTY : getSingleText(cells.get(1));
+                tName = OperationType.getValueOf(opType).isOperationWithoutTokens()
+                        ? StringUtils.EMPTY
+                        : getSingleText(cells.get(1));
                 String tAmountRaw = getSingleText(cells.get(2));
                 String priceRaw = getSingleText(cells.get(3));
                 String dateRaw = getSingleText(cells.get(4));

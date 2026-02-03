@@ -1,6 +1,9 @@
 package com.converter.writers;
 
+import com.converter.model.EventType;
+import com.converter.model.OperationType;
 import com.converter.model.TableRow;
+import jdk.jfr.Event;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileOutputStream;
@@ -40,18 +43,19 @@ public class SnowballExcelWriter {
             // 2. Записываем данные с учетом маппинга
             int rowNum = 1;
             for (TableRow tr : data) {
-
-                // Обработка "Покупка токенов" -> Cash_In и Buy
-                if ("Покупка токенов".equals(tr.operationType())) {
-                    rowNum = createSnowballRow(sheet, rowNum, tr, "Buy");
-                    rowNum = createSnowballRow(sheet, rowNum, tr, "Cash_In");
+                OperationType operationType = OperationType.getValueOf(tr.operationType());
+                if (OperationType.CASH_IN.equals(operationType)) {
+                    rowNum = createSnowballRow(sheet, rowNum, tr, EventType.CASH_IN);
+                } else if (OperationType.BUY_TOKENS.equals(operationType)) {
+                    rowNum = createSnowballRow(sheet, rowNum, tr, EventType.BUY);
                 }
-                // Обработка "Получение дохода" -> Dividend
-                else if (Arrays.asList("Получение дохода", "Получение дохода по реферальной программе").contains(tr.operationType())) {
-                    rowNum = createSnowballRow(sheet, rowNum, tr, "Dividend");
-                }
-                // Игнорируем другие операции, которые не мапятся
-                else {
+                else if (OperationType.INCOME.equals(operationType)) {
+                    rowNum = createSnowballRow(sheet, rowNum, tr, EventType.DIVIDEND);
+                } else if (OperationType.INCOME_REFERRAL.equals(operationType)) {
+                    rowNum = createSnowballRow(sheet, rowNum, tr, EventType.CASH_GAIN);
+                } else if (OperationType.CASH_OUT.equals(operationType)) {
+                    rowNum = createSnowballRow(sheet, rowNum, tr, EventType.CASH_OUT);
+                } else {
                     System.out.println("Ignored operation type for Snowball: " + tr.operationType());
                 }
             }
@@ -75,11 +79,11 @@ public class SnowballExcelWriter {
     /**
      * Вспомогательный метод для создания одной строки в формате Snowball
      */
-    private int createSnowballRow(Sheet sheet, int rowNum, TableRow tr, String eventType) {
+    private int createSnowballRow(Sheet sheet, int rowNum, TableRow tr, EventType eventType) {
         Row row = sheet.createRow(rowNum++);
 
         // Col 0: Event
-        row.createCell(0).setCellValue(eventType);
+        row.createCell(0).setCellValue(eventType.getValue());
 
         // Col 1: Date (формат yyyy-MM-dd)
         row.createCell(1).setCellValue(dateFormat.format(tr.date()));
@@ -89,21 +93,21 @@ public class SnowballExcelWriter {
 
         // Col 3: Price
         double priceValue = 0.0;
-        if ("Cash_In".equals(eventType)) {
+        if (eventType.isCashInOut()) {
             priceValue = 1.0;
-        } else if ("Buy".equals(eventType)) {
+        } else if (EventType.BUY.equals(eventType)) {
             // Защита от деления на ноль
             priceValue = (tr.tokenAmount() > 0) ? tr.price() / tr.tokenAmount() : 0.0;
-        } else if ("Dividend".equals(eventType)) {
+        } else if (EventType.DIVIDEND.equals(eventType)) {
             priceValue = 999.0; // Согласно вашему ТЗ
         }
         row.createCell(3).setCellValue(Double.parseDouble(priceFormat.format(priceValue)));
 
         // Col 4: Quantity
         double quantityValue = 0.0;
-        if ("Buy".equals(eventType)) {
+        if (EventType.BUY.equals(eventType)) {
             quantityValue = tr.tokenAmount();
-        } else if ("Cash_In".equals(eventType) || "Dividend".equals(eventType)) {
+        } else if (eventType.isIncomeEvent()) {
             quantityValue = tr.price();
         }
         row.createCell(4).setCellValue(quantityValue);

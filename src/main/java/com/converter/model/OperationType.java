@@ -26,4 +26,8 @@ public enum OperationType {
     public boolean isOperationWithoutTokens() {
         return Set.of(CASH_IN, CASH_OUT, INCOME_REFERRAL).contains(this);
     }
+
+    public boolean isCashInOut() {
+        return Set.of(CASH_IN, CASH_OUT).contains(this);
+    }
 }
