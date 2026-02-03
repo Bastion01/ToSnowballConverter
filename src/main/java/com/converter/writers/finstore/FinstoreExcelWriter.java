@@ -1,4 +1,4 @@
-package com.converter.writers;
+package com.converter.writers.finstore;
 
 import com.converter.model.TableRow;
 import com.converter.model.TheadRow;
@@ -9,9 +9,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class ExcelWriter {
-    public static ExcelWriter instance = new ExcelWriter();
-    private ExcelWriter() {}
+public class FinstoreExcelWriter {
+    public static FinstoreExcelWriter instance = new FinstoreExcelWriter();
+    private FinstoreExcelWriter() {}
 
     public void writeReport(TheadRow headers, List<TableRow> data) {
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -76,7 +76,7 @@ public class ExcelWriter {
         return style;
     }
 
-    public static ExcelWriter getInstance() {
+    public static FinstoreExcelWriter getInstance() {
         return instance;
     }
 }

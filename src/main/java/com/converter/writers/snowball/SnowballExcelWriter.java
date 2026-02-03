@@ -1,16 +1,14 @@
-package com.converter.writers;
+package com.converter.writers.snowball;
 
-import com.converter.model.EventType;
-import com.converter.model.OperationType;
+import com.converter.model.enums.EventType;
+import com.converter.model.enums.OperationType;
 import com.converter.model.TableRow;
-import jdk.jfr.Event;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.List;
 
 public class SnowballExcelWriter {

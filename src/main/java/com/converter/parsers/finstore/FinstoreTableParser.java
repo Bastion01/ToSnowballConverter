@@ -1,7 +1,7 @@
-package com.converter.parsers;
+package com.converter.parsers.finstore;
 
-import com.converter.model.Currency;
-import com.converter.model.OperationType;
+import com.converter.model.enums.Currency;
+import com.converter.model.enums.OperationType;
 import com.converter.model.TableRow;
 import com.converter.model.TheadRow;
 import org.apache.commons.lang3.StringUtils;
@@ -17,20 +17,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TableParser {
+public class FinstoreTableParser {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private final Pattern numberPattern = Pattern.compile("\\d+(\\.\\d+)?");
-    private static TableParser instance = new TableParser();
-    // Список операций не содержащих название токена
-    private final Set<String> operationsWithoutTokens = Set.of(
-            "Получение дохода по реферальной программе",
-            "Пополнение кошелька",
-            "Вывод денежных средств"
-    );
+    private static FinstoreTableParser instance = new FinstoreTableParser();
 
-    private TableParser() {}
+    private FinstoreTableParser() {}
 
-    public static TableParser getInstance() {
+    public static FinstoreTableParser getInstance() {
         return instance;
     }
 

@@ -1,54 +1,71 @@
 package com.converter.readers;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class DocumentReader {
-    private static DocumentReader instance = new DocumentReader();
+    private static final DocumentReader INSTANCE = new DocumentReader();
 
     private DocumentReader() {}
 
     public static DocumentReader getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
-     * Загружает локальный .mhtml файл, исполняет JavaScript и возвращает DOM
-     * @param fileName имя файла в корне проекта (например, "page.mhtml")
-     * @param waitSelector селектор элемента, появления которого нужно дождаться (например, "text=Вид операции")
+     * Загружает список локальных .mhtml файлов, исполняет JS и возвращает список DOM-объектов
+     * @param fileNames массив имен файлов
+     * @param waitSelector селектор ожидания для каждого файла
      */
-    public Document readDocumentFromMhtml(String fileName, String waitSelector) {
+    public List<Document> readDocumentsFromMhtml(Set<String> fileNames, String waitSelector) {
+        List<Document> documents = new ArrayList<>();
+
         try (Playwright playwright = Playwright.create()) {
-            // Запускаем Chromium в фоновом режиме
+            // Запускаем браузер один раз для всех файлов ради производительности
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
             Page page = browser.newPage();
 
-            // Преобразуем имя файла в абсолютный URI для браузера
-            String absolutePath = Paths.get(fileName).toUri().toString();
+            for (String fileName : fileNames) {
+                Path filePath = Paths.get(fileName);
 
-            // Переходим по пути файла
-            page.navigate(absolutePath);
+                // Проверка существования файла
+                if (!Files.exists(filePath)) {
+                    System.err.println("Файл не найден и будет пропущен: " + fileName);
+                    continue;
+                }
 
-            // Ждем, пока React/MUI отрисует таблицу с данными
-            page.waitForSelector(waitSelector);
+                try {
+                    String absolutePath = filePath.toUri().toString();
+                    page.navigate(absolutePath);
 
-            // Получаем HTML после выполнения всех скриптов
-            String content = page.content();
+                    // Ждем отрисовки контента
+                    page.waitForSelector(waitSelector);
 
-            Document doc = Jsoup.parse(content);
+                    String content = page.content();
+                    documents.add(Jsoup.parse(content));
+
+                    System.out.println("Файл успешно прочитан: " + fileName);
+                } catch (Exception e) {
+                    System.err.println("Ошибка при обработке файла " + fileName + ": " + e.getMessage());
+                }
+            }
 
             browser.close();
-            return doc;
-
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при чтении .mhtml файла через Playwright: " + e.getMessage(), e);
+            throw new RuntimeException("Критическая ошибка Playwright: " + e.getMessage(), e);
         }
+
+        return documents;
     }
 }

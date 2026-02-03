@@ -1,5 +1,7 @@
 package com.converter.model;
 
+import com.converter.model.enums.Currency;
+
 import java.util.Date;
 
 public record TableRow(

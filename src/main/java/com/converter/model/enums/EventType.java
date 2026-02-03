@@ -1,4 +1,4 @@
-package com.converter.model;
+package com.converter.model.enums;
 
 import java.util.Arrays;
 import java.util.Set;
