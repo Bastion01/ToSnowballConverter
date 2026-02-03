@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20.0" prefWidth="500.0" style="-fx-background-color: #21262d;" xmlns="http://javafx.com" xmlns:fx="http://javafx.com">
+    <children>
+        <!-- Заголовок -->
+        <Label text="Finstore to Snowball Converter" textFill="WHITE">
+            <font><Font name="System Bold" size="22.0" /></font>
+        </Label>
+
+        <!-- Зона 1: MHTML -->
+        <VBox alignment="CENTER" spacing="10" style="-fx-border-color: #30363d; -fx-border-width: 2; -fx-border-style: dashed; -fx-border-radius: 10; -fx-background-color: #0d1117; -fx-background-radius: 10;" prefHeight="120">
+            <children>
+                <Label text="📂 Перетащите .mhtml файлы сюда" textFill="#8b949e" />
+                <Button text="Выбрать файлы" styleClass="button-outlined" />
+            </children>
+            <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
+        </VBox>
+
+        <!-- Чекбокс Категорий -->
+        <CheckBox fx:id="addCategoriesCheck" text="Добавить категории к существующим" textFill="WHITE" />
+
+        <!-- Зона 2: CSV (будет дизейблиться) -->
+        <VBox fx:id="csvDropZone" disable="${!addCategoriesCheck.selected}" alignment="CENTER" spacing="10" style="-fx-border-color: #30363d; -fx-border-width: 2; -fx-border-style: dashed; -fx-border-radius: 10; -fx-background-color: #0d1117;" prefHeight="80">
+            <children>
+                <Label text="📄 Файл категорий (.csv)" textFill="#8b949e" />
+            </children>
+        </VBox>
+
+        <Separator opacity="0.1" />
+
+        <!-- Выбор отчетов -->
+        <HBox spacing="15">
+            <CheckBox text="XLSX Report" selected="true" textFill="WHITE" />
+            <CheckBox text="Snowball XLSX" selected="true" textFill="WHITE" />
+            <CheckBox text="Snowball CSV" selected="true" textFill="WHITE" />
+        </HBox>
+
+        <!-- Прогресс и Кнопка -->
+        <ProgressBar progress="0.0" maxWidth="Infinity" prefHeight="15" />
+        <Button text="КОНВЕРТИРОВАТЬ И СКАЧАТЬ .ZIP" maxWidth="Infinity" prefHeight="50"
+                style="-fx-background-color: #238636; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+    </children>
+    <padding><Insets bottom="25.0" left="25.0" right="25.0" top="25.0" /></padding>
+</VBox>
