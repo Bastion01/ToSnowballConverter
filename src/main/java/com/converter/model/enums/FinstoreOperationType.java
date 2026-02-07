@@ -8,7 +8,9 @@ public enum FinstoreOperationType {
     CASH_OUT("Вывод денежных средств"),
     INCOME("Получение дохода"),
     INCOME_REFERRAL("Получение дохода по реферальной программе"),
-    BUY_TOKENS("Покупка токенов");
+    BUY_TOKENS("Покупка токенов"),
+    BUY_TOKENS_ON_SECONDARY_MARKET("Покупка ICO токенов на Вторичном рынке"),
+    SELL_TOKENS_ON_SECONDARY_MARKET("Продажа ICO токенов на Вторичном рынке");
 
     private String value;
     FinstoreOperationType(String value) {
@@ -21,6 +23,10 @@ public enum FinstoreOperationType {
 
     public static FinstoreOperationType getValueOf(String operationType) {
         return Arrays.stream(FinstoreOperationType.values()).filter(opType -> operationType.equals(opType.getValue())).findFirst().get();
+    }
+
+    public boolean isTokensPurchase() {
+        return Set.of(BUY_TOKENS, BUY_TOKENS_ON_SECONDARY_MARKET).contains(this);
     }
 
     public boolean isOperationWithoutTokens() {

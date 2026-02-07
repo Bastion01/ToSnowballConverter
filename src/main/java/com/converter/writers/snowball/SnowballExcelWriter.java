@@ -8,8 +8,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class SnowballExcelWriter {
     public static SnowballExcelWriter instance = new SnowballExcelWriter();
@@ -23,7 +25,7 @@ public class SnowballExcelWriter {
     // Формат даты для колонки Date (yyyy-mm-dd)
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     // Формат для чисел с плавающей точкой
-    private final DecimalFormat priceFormat = new DecimalFormat("#.##########");
+    private final DecimalFormat priceFormat = new DecimalFormat("#.##########", new DecimalFormatSymbols(Locale.US));
 
     public void writeSnowballReport(List<TableRow> data) {
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -44,10 +46,11 @@ public class SnowballExcelWriter {
                 FinstoreOperationType operationType = FinstoreOperationType.getValueOf(tr.operationType());
                 if (FinstoreOperationType.CASH_IN.equals(operationType)) {
                     rowNum = createSnowballRow(sheet, rowNum, tr, SnowballEventType.CASH_IN);
-                } else if (FinstoreOperationType.BUY_TOKENS.equals(operationType)) {
+                } else if (operationType.isTokensPurchase()) {
                     rowNum = createSnowballRow(sheet, rowNum, tr, SnowballEventType.BUY);
-                }
-                else if (FinstoreOperationType.INCOME.equals(operationType)) {
+                } else if (FinstoreOperationType.SELL_TOKENS_ON_SECONDARY_MARKET.equals(operationType)) {
+                    rowNum = createSnowballRow(sheet, rowNum, tr, SnowballEventType.SELL);
+                } else if (FinstoreOperationType.INCOME.equals(operationType)) {
                     rowNum = createSnowballRow(sheet, rowNum, tr, SnowballEventType.DIVIDEND);
                 } else if (FinstoreOperationType.INCOME_REFERRAL.equals(operationType)) {
                     rowNum = createSnowballRow(sheet, rowNum, tr, SnowballEventType.CASH_GAIN);
@@ -93,7 +96,7 @@ public class SnowballExcelWriter {
         double priceValue = 0.0;
         if (eventType.isCashInOut()) {
             priceValue = 1.0;
-        } else if (SnowballEventType.BUY.equals(eventType)) {
+        } else if (eventType.isBuySell()) {
             // Защита от деления на ноль
             priceValue = (tr.tokenAmount() > 0) ? tr.price() / tr.tokenAmount() : 0.0;
         } else if (SnowballEventType.DIVIDEND.equals(eventType)) {
@@ -103,7 +106,7 @@ public class SnowballExcelWriter {
 
         // Col 4: Quantity
         double quantityValue = 0.0;
-        if (SnowballEventType.BUY.equals(eventType)) {
+        if (eventType.isBuySell()) {
             quantityValue = tr.tokenAmount();
         } else if (eventType.isIncomeEvent()) {
             quantityValue = tr.price();

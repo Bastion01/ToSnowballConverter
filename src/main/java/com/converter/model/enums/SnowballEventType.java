@@ -8,7 +8,8 @@ public enum SnowballEventType {
     CASH_OUT("Cash_Out"),
     CASH_GAIN("Cash_Gain"),
     DIVIDEND("Dividend"),
-    BUY("Buy");
+    BUY("Buy"),
+    SELL("Sell");
 
     private String value;
     SnowballEventType(String value) {
@@ -21,6 +22,10 @@ public enum SnowballEventType {
 
     public static SnowballEventType getValueOf(String eventType) {
         return Arrays.stream(SnowballEventType.values()).filter(evType -> eventType.equals(evType.getValue())).findFirst().get();
+    }
+
+    public boolean isBuySell() {
+        return Set.of(BUY, SELL).contains(this);
     }
 
     public boolean isCashInOut() {

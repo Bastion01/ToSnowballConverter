@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 public class Main {
     public static void main(String[] args) {
         try {
-            List<Document> documents = DocumentReader.getInstance().readDocumentsFromMhtml(
-                    Set.of("page.mhtml"), "text=Вид операции"
-            );
 //            List<Document> documents = DocumentReader.getInstance().readDocumentsFromMhtml(
-//                    Set.of("page1.mhtml", "page2.mhtml", "page3.mhtml", "page4.mhtml", "page5.mhtml"),
-//                    "text=Вид операции"
+//                    Set.of("page.mhtml"), "text=Вид операции"
 //            );
+            List<Document> documents = DocumentReader.getInstance().readDocumentsFromMhtml(
+                    Set.of("page1.mhtml", "page2.mhtml", "page3.mhtml", "page4.mhtml", "page5.mhtml"),
+                    "text=Вид операции"
+            );
             FinstoreTableParser tableParser = FinstoreTableParser.getInstance();
             TheadRow headers = tableParser.parseThead(documents.getFirst());
             List<TableRow> data = new ArrayList<>();

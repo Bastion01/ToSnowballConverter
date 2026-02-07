@@ -41,16 +41,15 @@ public class FinstoreExcelWriter {
                 row.createCell(2).setCellValue(dataRow.tokenAmount());
 
                 // Сумма + Валюта в одной ячейке (или можно разбить)
-                row.createCell(3).setCellValue(dataRow.price());
-                row.createCell(4).setCellValue(dataRow.currency().name());
+                row.createCell(3).setCellValue(String.format("%s %s",dataRow.price(), dataRow.currency().name()));
 
-                Cell dateCell = row.createCell(5);
+                Cell dateCell = row.createCell(4);
                 dateCell.setCellValue(dataRow.date());
                 dateCell.setCellStyle(dateStyle);
             }
 
             // 4. Автоподбор ширины колонок
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 5; i++) {
                 sheet.autoSizeColumn(i);
             }
 
