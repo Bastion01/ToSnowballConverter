@@ -87,6 +87,8 @@ public class FinstoreTableParser {
                 Currency curr = Currency.UNKNOWN;
                 if (priceRaw.contains("USD")) curr = Currency.USD;
                 else if (priceRaw.contains("BYN")) curr = Currency.BYN;
+                else if (priceRaw.contains("EUR")) curr = Currency.EUR;
+                else if (priceRaw.contains("RUB")) curr = Currency.RUB;
 
                 // 3. Парсинг цены (устранение multiple points через RegEx)
                 String priceStr = extractFirstNumber(priceRaw);

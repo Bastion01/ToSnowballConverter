@@ -1,5 +1,5 @@
 package com.converter.model.enums;
 
 public enum Currency {
-    BYN, USD, UNKNOWN
+    BYN, USD, EUR, RUB, UNKNOWN
 }
