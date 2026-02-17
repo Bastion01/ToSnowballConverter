@@ -5,6 +5,8 @@ import com.converter.model.enums.FinstoreOperationType;
 import com.converter.model.TableRow;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -15,6 +17,7 @@ import java.util.Locale;
 
 public class SnowballExcelWriter {
     public static SnowballExcelWriter instance = new SnowballExcelWriter();
+    public static final String FILENAME = "SnowballReport.xlsx";
 
     private SnowballExcelWriter() {}
 
@@ -27,7 +30,7 @@ public class SnowballExcelWriter {
     // Формат для чисел с плавающей точкой
     private final DecimalFormat priceFormat = new DecimalFormat("#.##########", new DecimalFormatSymbols(Locale.US));
 
-    public void writeSnowballReport(List<TableRow> data) {
+    public File writeSnowballReport(List<TableRow> data) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Snowball Data");
 
@@ -67,14 +70,14 @@ public class SnowballExcelWriter {
             }
 
             // 4. Сохранение
-            try (FileOutputStream fileOut = new FileOutputStream("FinstoreReport_Snowball.xlsx")) {
+            try (FileOutputStream fileOut = new FileOutputStream(FILENAME)) {
                 workbook.write(fileOut);
             }
-            System.out.println("Файл FinstoreReport_Snowball.xlsx успешно создан!");
-
+            System.out.println("Файл " + FILENAME + " успешно создан!");
         } catch (IOException e) {
-            System.err.println("Ошибка при создании Snowball Excel файла: " + e.getMessage());
+            throw new RuntimeException("Ошибка при создании Snowball Excel файла: " + e.getMessage(), e);
         }
+        return new File(FILENAME);
     }
 
     /**

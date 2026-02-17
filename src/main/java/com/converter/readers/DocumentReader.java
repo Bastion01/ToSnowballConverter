@@ -7,7 +7,7 @@ import com.microsoft.playwright.Playwright;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -25,10 +25,10 @@ public class DocumentReader {
 
     /**
      * Загружает список локальных .mhtml файлов, исполняет JS и возвращает список DOM-объектов
-     * @param fileNames массив имен файлов
+     * @param mhtmlFiles массив файлов
      * @param waitSelector селектор ожидания для каждого файла
      */
-    public List<Document> readDocumentsFromMhtml(Set<String> fileNames, String waitSelector) {
+    public List<Document> readDocumentsFromMhtml(Set<File> mhtmlFiles, String waitSelector) {
         List<Document> documents = new ArrayList<>();
 
         try (Playwright playwright = Playwright.create()) {
@@ -36,14 +36,9 @@ public class DocumentReader {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
             Page page = browser.newPage();
 
-            for (String fileName : fileNames) {
-                Path filePath = Paths.get(fileName);
-
-                // Проверка существования файла
-                if (!Files.exists(filePath)) {
-                    System.err.println("Файл не найден и будет пропущен: " + fileName);
-                    continue;
-                }
+            for (File mhtmlFile : mhtmlFiles) {
+                String fileName = mhtmlFile.getName();
+                Path filePath = Paths.get(mhtmlFile.getPath());
 
                 try {
                     String absolutePath = filePath.toUri().toString();
@@ -57,7 +52,7 @@ public class DocumentReader {
 
                     System.out.println("Файл успешно прочитан: " + fileName);
                 } catch (Exception e) {
-                    System.err.println("Ошибка при обработке файла " + fileName + ": " + e.getMessage());
+                    throw new RuntimeException("Ошибка при обработке файла " + fileName + ": " + e.getMessage(), e);
                 }
             }
 

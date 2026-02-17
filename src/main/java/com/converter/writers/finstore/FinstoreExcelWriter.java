@@ -5,15 +5,17 @@ import com.converter.model.TheadRow;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 public class FinstoreExcelWriter {
+    public static final String FILENAME = "FinstoreReport.xlsx";
     public static FinstoreExcelWriter instance = new FinstoreExcelWriter();
     private FinstoreExcelWriter() {}
 
-    public void writeReport(TheadRow headers, List<TableRow> data) {
+    public File writeReport(TheadRow headers, List<TableRow> data) {
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Транзакции");
 
@@ -54,14 +56,14 @@ public class FinstoreExcelWriter {
             }
 
             // 5. Сохранение
-            try (FileOutputStream fileOut = new FileOutputStream("FinstoreReport.xlsx")) {
+            try (FileOutputStream fileOut = new FileOutputStream(FILENAME)) {
                 workbook.write(fileOut);
             }
-            System.out.println("Файл FinstoreReport.xlsx успешно создан!");
-
+            System.out.println("Файл " + FILENAME + " успешно создан!");
         } catch (IOException e) {
-            System.err.println("Ошибка при создании Excel файла: " + e.getMessage());
+            throw new RuntimeException("Ошибка при создании Excel файла: " + e.getMessage(), e);
         }
+        return new File(FILENAME);
     }
 
     private CellStyle createHeaderStyle(Workbook workbook) {

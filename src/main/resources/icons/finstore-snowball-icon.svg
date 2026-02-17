@@ -1,0 +1,26 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1DA1F2"/>
+            <stop offset="100%" stop-color="#0A66C2"/>
+        </linearGradient>
+    </defs>
+
+    <!-- Background circle -->
+    <circle cx="128" cy="128" r="120" fill="url(#blueGrad)" />
+
+    <!-- Left geometric data block -->
+    <rect x="50" y="90" width="50" height="50" rx="6" fill="white" opacity="0.95"/>
+    <rect x="58" y="98" width="34" height="6" fill="#0A66C2"/>
+    <rect x="58" y="110" width="34" height="6" fill="#0A66C2"/>
+    <rect x="58" y="122" width="24" height="6" fill="#0A66C2"/>
+
+    <!-- Flow arrow (transforming shape) -->
+    <path d="M110 115 C135 105, 150 115, 165 128
+           C150 141, 135 151, 110 141"
+          fill="none" stroke="white" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Snowball shape -->
+    <circle cx="178" cy="128" r="28" fill="white"/>
+    <circle cx="170" cy="120" r="6" fill="#E6F4FF"/>
+</svg>

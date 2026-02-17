@@ -100,8 +100,10 @@ public class FinstoreTableParser {
                 tableRows.add(new TableRow(opType, tName, tAmount, priceValue, dateValue, curr));
 
             } catch (Exception e) {
-                // Логируем ошибку, чтобы видеть на каком этапе произошел сбой
-                System.out.printf("Row [%s] | [%s] skipped. Reason: %s%n", opType, tName, e.getMessage());
+                throw new RuntimeException(
+                        String.format("Row [%s] | [%s] skipped. Reason: %s%n", opType, tName, e.getMessage()),
+                        e
+                );
             }
         }
         return tableRows;

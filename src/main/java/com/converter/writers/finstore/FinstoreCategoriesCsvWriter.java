@@ -2,6 +2,7 @@ package com.converter.writers.finstore;
 
 import org.apache.commons.lang3.StringUtils;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -17,22 +18,18 @@ import java.util.regex.Pattern;
 public class FinstoreCategoriesCsvWriter {
     private static final FinstoreCategoriesCsvWriter INSTANCE = new FinstoreCategoriesCsvWriter();
 
-    private static final String FILE_NAME = "SnowballCategories.csv";
+    private static final String FILENAME = "SnowballCategories.csv";
     private static final String HEADER = "Parent,PieAsset,IsAsset,IsUnallocated,IsLocked,Allocation";
     private static final String ROW_TEMPLATE = "%s,%s,%b,false,false,\"0,0000\"";
 
     private FinstoreCategoriesCsvWriter() {}
 
-    public void writeCategories(Set<String> inputTokenNames, boolean isForceCreateNeeded) {
-        Path path = Paths.get(FILE_NAME);
+    public File writeCategories(Set<String> inputTokenNames, File categoriesFile) {
+        Path path = categoriesFile == null ? null : Paths.get(categoriesFile.getPath());
         Map<String, String> dataMap = new LinkedHashMap<>();
 
         try {
-            if (isForceCreateNeeded) {
-                Files.deleteIfExists(path);
-            }
-
-            if (Files.exists(path)) {
+            if (path != null && Files.exists(path)) {
                 for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
                     if (StringUtils.isBlank(line) || line.startsWith("Parent")) continue;
 
@@ -63,6 +60,10 @@ public class FinstoreCategoriesCsvWriter {
                 dataMap.put(tokenNameConverted, tokenRow);
             }
 
+            if (path == null) {
+                path = Paths.get(FILENAME);
+            }
+
             try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
@@ -81,10 +82,11 @@ public class FinstoreCategoriesCsvWriter {
                 }
             }
 
-            System.out.println("Данные успешно синхронизированы в " + FILE_NAME);
+            System.out.println("Данные успешно синхронизированы в " + FILENAME);
         } catch (IOException e) {
-            System.err.println("Ошибка: " + e.getMessage());
+            throw new RuntimeException("Ошибка: " + e.getMessage(), e);
         }
+        return path.toFile();
     }
 
     private String parseCompanyName(String token) {
