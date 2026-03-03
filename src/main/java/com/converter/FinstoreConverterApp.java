@@ -56,7 +56,7 @@ public class FinstoreConverterApp extends Application {
         Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
 
         VBox root = new VBox(10);
-        root.setPadding(new Insets(10, 10, 10, 20));
+        root.setPadding(new Insets(10, 10, 10, 10));
         root.setAlignment(Pos.TOP_CENTER);
 
         // 1. Top Bar
