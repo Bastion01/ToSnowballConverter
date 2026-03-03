@@ -46,7 +46,7 @@ jobs:
             --name "FinstoreConverter" `
             --input target/ `
             --main-jar FinstoreToSnowballConverter-1.0-SNAPSHOT.jar `
-            --main-class com.converter.FinstoreConverterApp `
+            --main-class com.converter.Launcher `
             --win-dir-chooser `
             --win-shortcut `
             --win-menu `
