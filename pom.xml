@@ -87,7 +87,7 @@
                             <transformers>
                                 <!-- Указываем главный класс для манифеста -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.converter.FinstoreConverterApp</mainClass>
+                                    <mainClass>com.converter.Launcher</mainClass>
                                 </transformer>
                             </transformers>
                             <!-- Исключаем подписи зависимостей, чтобы избежать SecurityException -->
