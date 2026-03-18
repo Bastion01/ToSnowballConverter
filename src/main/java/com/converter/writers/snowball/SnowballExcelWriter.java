@@ -5,10 +5,14 @@ import com.converter.model.enums.FinstoreOperationType;
 import com.converter.model.TableRow;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -16,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class SnowballExcelWriter {
+    private static final Logger logger = LoggerFactory.getLogger(SnowballExcelWriter.class);
     public static SnowballExcelWriter instance = new SnowballExcelWriter();
     public static final String FILENAME = "SnowballReport.xlsx";
 
@@ -60,7 +65,7 @@ public class SnowballExcelWriter {
                 } else if (FinstoreOperationType.CASH_OUT.equals(operationType)) {
                     rowNum = createSnowballRow(sheet, rowNum, tr, SnowballEventType.CASH_OUT);
                 } else {
-                    System.out.println("Ignored operation type for Snowball: " + tr.operationType());
+                    logger.debug("Ignored operation type for Snowball: " + tr.operationType());
                 }
             }
 
@@ -70,12 +75,15 @@ public class SnowballExcelWriter {
             }
 
             // 4. Сохранение
-            try (FileOutputStream fileOut = new FileOutputStream(FILENAME)) {
+            String tempDir = System.getProperty("java.io.tmpdir");
+            Path reportPath = Paths.get(tempDir).resolve(FILENAME);
+            File reportFile = reportPath.toFile();
+            try (FileOutputStream fileOut = new FileOutputStream(reportFile)) {
                 workbook.write(fileOut);
             }
-            System.out.println("Файл " + FILENAME + " успешно создан!");
+            logger.debug("File {} successfully created!", FILENAME);
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при создании Snowball Excel файла: " + e.getMessage(), e);
+            throw new RuntimeException("Error occurred during Snowball Excel file creation: " + e.getMessage(), e);
         }
         return new File(FILENAME);
     }

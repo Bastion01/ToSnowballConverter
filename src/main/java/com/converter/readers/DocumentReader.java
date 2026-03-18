@@ -6,8 +6,11 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +21,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class DocumentReader {
+    private static final Logger logger = LoggerFactory.getLogger(DocumentReader.class);
     private static final DocumentReader INSTANCE = new DocumentReader();
 
     private DocumentReader() {}
@@ -53,29 +57,33 @@ public class DocumentReader {
                     String content = page.content();
                     documents.add(Jsoup.parse(content));
 
-                    System.out.println("Файл успешно прочитан: " + fileName);
+                    logger.debug("File successfully read: {}", fileName);
                 } catch (Exception e) {
-                    throw new RuntimeException("Ошибка при обработке файла " + fileName + ": " + e.getMessage(), e);
+                    throw new RuntimeException("Error during file read or handling " + fileName + ": " + e.getMessage(), e);
                 }
             }
 
             browser.close();
         } catch (Exception e) {
-            throw new RuntimeException("Критическая ошибка Playwright: " + e.getMessage(), e);
+            throw new RuntimeException("Playwright critical error: " + e.getMessage(), e);
         }
 
         return documents;
     }
 
-    private static Playwright createOrReusePlaywrightEntity() {
-        Path internalBrowsers = Paths.get("app/browsers");
-        Map<String, String> env = new HashMap<>();
+    private static Playwright createOrReusePlaywrightEntity() throws URISyntaxException {
+        Path jarPath = Paths.get(DocumentReader.class.getProtectionDomain()
+                .getCodeSource().getLocation().toURI()).getParent();
+        Path internalBrowsers = jarPath.resolve("browsers");
 
         if (Files.exists(internalBrowsers)) {
+            Map<String, String> env = new HashMap<>();
             env.put("PLAYWRIGHT_BROWSERS_PATH", internalBrowsers.toAbsolutePath().toString());
+            logger.debug("Full version detected. Using internal browsers.");
             return Playwright.create(new Playwright.CreateOptions().setEnv(env));
         }
 
+        logger.debug("Lite version mode. Using system browsers.");
         return Playwright.create();
     }
 }

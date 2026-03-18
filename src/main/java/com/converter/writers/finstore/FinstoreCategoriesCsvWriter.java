@@ -1,6 +1,9 @@
 package com.converter.writers.finstore;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FinstoreCategoriesCsvWriter {
+    private static final Logger logger = LoggerFactory.getLogger(FinstoreCategoriesCsvWriter.class);
     private static final FinstoreCategoriesCsvWriter INSTANCE = new FinstoreCategoriesCsvWriter();
 
     private static final String FILENAME = "SnowballCategories.csv";
@@ -25,12 +29,14 @@ public class FinstoreCategoriesCsvWriter {
     private FinstoreCategoriesCsvWriter() {}
 
     public File writeCategories(Set<String> inputTokenNames, File categoriesFile) {
-        Path path = categoriesFile == null ? null : Paths.get(categoriesFile.getPath());
+        Path inputPath = categoriesFile == null ? null : Paths.get(categoriesFile.getPath());
+        String tempDir = System.getProperty("java.io.tmpdir");
+        Path outputPath = Paths.get(tempDir).resolve(FILENAME);
         Map<String, String> dataMap = new LinkedHashMap<>();
 
         try {
-            if (path != null && Files.exists(path)) {
-                for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+            if (inputPath != null && Files.exists(inputPath)) {
+                for (String line : Files.readAllLines(inputPath, StandardCharsets.UTF_8)) {
                     if (StringUtils.isBlank(line) || line.startsWith("Parent")) continue;
 
                     String[] parts = line.split(",");
@@ -60,11 +66,7 @@ public class FinstoreCategoriesCsvWriter {
                 dataMap.put(tokenNameConverted, tokenRow);
             }
 
-            if (path == null) {
-                path = Paths.get(FILENAME);
-            }
-
-            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8,
+            try (BufferedWriter writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8,
                     StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
                 writer.write(HEADER);
@@ -82,11 +84,11 @@ public class FinstoreCategoriesCsvWriter {
                 }
             }
 
-            System.out.println("Данные успешно синхронизированы в " + FILENAME);
+            logger.debug("Data successfully synchronized at {}", FILENAME);
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка: " + e.getMessage(), e);
+            throw new RuntimeException("Error: " + e.getMessage(), e);
         }
-        return path.toFile();
+        return outputPath.toFile();
     }
 
     private String parseCompanyName(String token) {

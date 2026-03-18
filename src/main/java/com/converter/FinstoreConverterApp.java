@@ -2,6 +2,8 @@ package com.converter;
 
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.Styles;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.read.CyclicBufferAppender;
 import com.converter.model.TableRow;
 import com.converter.model.TheadRow;
 import com.converter.services.FinstoreToSnowballConversionService;
@@ -22,10 +24,15 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.jsoup.nodes.Document;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +41,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class FinstoreConverterApp extends Application {
+    private static final Logger logger = LoggerFactory.getLogger(FinstoreConverterApp.class);
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     // Списки для хранения выбранных файлов
@@ -54,6 +62,12 @@ public class FinstoreConverterApp extends Application {
     public void start(Stage stage) {
         // Установка темной темы Atalanta
         Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+
+        // 0. Проверяет нет ли других версий запущенного приложения
+        if (Launcher.isAlreadyRunning()) {
+            showErrorAndExit();
+            return;
+        }
 
         VBox root = new VBox(10);
         root.setPadding(new Insets(10, 10, 10, 10));
@@ -447,24 +461,44 @@ public class FinstoreConverterApp extends Application {
     private void saveErrorReport(Exception e) {
         String appData = System.getenv("APPDATA");
         File logDir = new File(appData, "FinstoreConverter/logs");
-
-        if (!logDir.exists()) {
-            logDir.mkdirs();
-        }
+        if (!logDir.exists()) logDir.mkdirs();
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm-ss"));
-        String fileName = "ERROR_REPORT_" + timestamp + ".log";
-        File logFile = new File(logDir, fileName);
+        File logFile = new File(logDir, "ERROR_REPORT_" + timestamp + ".log");
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(logFile))) {
+            pw.println("=== APPLICATION LOGS (Last 256 events) ===");
+
+            // Магия: достаем логи из памяти Logback
+            LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+            CyclicBufferAppender<ILoggingEvent> memoryAppender =
+                    (CyclicBufferAppender<ILoggingEvent>) context.getLogger("ROOT").getAppender("MEMORY");
+
+            if (memoryAppender != null) {
+                int count = memoryAppender.getLength();
+                for (int i = 0; i < count; i++) {
+                    ILoggingEvent event = memoryAppender.get(i);
+                    // Форматируем строку лога вручную или используем паттерн
+                    pw.printf("%s [%s] %-5s %s - %s%n",
+                            LocalDateTime.ofInstant(Instant.ofEpochMilli(event.getTimeStamp()), ZoneId.systemDefault()),
+                            event.getThreadName(),
+                            event.getLevel(),
+                            event.getLoggerName(),
+                            event.getFormattedMessage());
+                }
+            }
+
+            pw.println("\n=== EXCEPTION STACKTRACE ===");
             e.printStackTrace(pw);
-            pw.println("--- System Info ---");
+
+            pw.println("\n--- System Info ---");
             pw.println("OS: " + System.getProperty("os.name"));
             pw.println("Java: " + System.getProperty("java.version"));
-        } catch (IOException ioException) {
+        } catch (Exception ioException) {
             ioException.printStackTrace();
         }
     }
+
 
     private void resetCsvSelection() {
         categoriesCsvFile = null;
@@ -474,6 +508,18 @@ public class FinstoreConverterApp extends Application {
     private void showError(String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING, msg);
         a.show();
+    }
+
+    private void showErrorAndExit() {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Ошибка запуска");
+        alert.setHeaderText("Приложение уже запущено");
+        alert.setContentText("Пожалуйста, закройте предыдущую копию программы.");
+
+        // Alert подхватит стиль PrimerDark автоматически
+        alert.showAndWait();
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void main(String[] args) {

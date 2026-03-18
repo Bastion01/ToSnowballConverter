@@ -4,13 +4,18 @@ import com.converter.model.TableRow;
 import com.converter.model.TheadRow;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class FinstoreExcelWriter {
+    private static final Logger logger = LoggerFactory.getLogger(FinstoreExcelWriter.class);
     public static final String FILENAME = "FinstoreReport.xlsx";
     public static FinstoreExcelWriter instance = new FinstoreExcelWriter();
     private FinstoreExcelWriter() {}
@@ -56,12 +61,15 @@ public class FinstoreExcelWriter {
             }
 
             // 5. Сохранение
-            try (FileOutputStream fileOut = new FileOutputStream(FILENAME)) {
+            String tempDir = System.getProperty("java.io.tmpdir");
+            Path reportPath = Paths.get(tempDir).resolve(FILENAME);
+            File reportFile = reportPath.toFile();
+            try (FileOutputStream fileOut = new FileOutputStream(reportFile)) {
                 workbook.write(fileOut);
             }
-            System.out.println("Файл " + FILENAME + " успешно создан!");
+            logger.debug("File {} successfully created!,", FILENAME);
         } catch (IOException e) {
-            throw new RuntimeException("Ошибка при создании Excel файла: " + e.getMessage(), e);
+            throw new RuntimeException("Error occurred during excel file creation: " + e.getMessage(), e);
         }
         return new File(FILENAME);
     }
