@@ -8,6 +8,11 @@ import com.converter.model.TableRow;
 import com.converter.model.TheadRow;
 import com.converter.services.FinstoreToSnowballConversionService;
 import com.converter.services.ResultKey;
+import io.sentry.Attachment;
+import io.sentry.Sentry;
+import io.sentry.SentryEvent;
+import io.sentry.SentryLevel;
+import io.sentry.protocol.Message;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -494,9 +499,29 @@ public class FinstoreConverterApp extends Application {
             pw.println("\n--- System Info ---");
             pw.println("OS: " + System.getProperty("os.name"));
             pw.println("Java: " + System.getProperty("java.version"));
+
+            sendEventToSentry(e, logFile);
         } catch (Exception ioException) {
             ioException.printStackTrace();
         }
+    }
+
+    private void sendEventToSentry(Exception e, File logFile) {
+        Sentry.withScope(scope -> {
+            // Создаем объект Attachment из пути к файлу
+            Attachment attachment = new Attachment(logFile.getAbsolutePath());
+            scope.addAttachment(attachment);
+
+            // Создаем событие
+            SentryEvent event = new SentryEvent(e);
+            event.setLevel(SentryLevel.ERROR);
+
+            Message message = new Message();
+            message.setMessage("User reported error: " + e.getMessage());
+            event.setMessage(message);
+
+            Sentry.captureEvent(event);
+        });
     }
 
 

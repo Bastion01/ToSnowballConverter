@@ -33,7 +33,9 @@ jobs:
       # нам нужно только убедиться, что он в PATH (обычно это так).
 
       - name: Build Fat JAR with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package -DskipTests -Dsentry.dsn.env=${{ secrets.SENTRY_DSN }}
+        env:
+          SENTRY_DSN_PROPS: ${{ secrets.SENTRY_DSN }}
 
       - name: Get JAR Name and Prepare Deploy Folder
         id: jar_info
@@ -123,6 +125,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: "v${{ steps.prep_version.outputs.clean_version }}"
           body_path: release_notes_final.md  # Используем созданный файл как описание
           files: |
             dist/lite/*.exe

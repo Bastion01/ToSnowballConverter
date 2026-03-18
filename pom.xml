@@ -58,9 +58,20 @@
             <artifactId>logback-classic</artifactId>
             <version>1.5.16</version>
         </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry-logback</artifactId>
+            <version>8.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
 <!--            <plugin>-->
 <!--                <groupId>org.openjfx</groupId>-->
@@ -70,7 +81,6 @@
 <!--                    <mainClass>com.converter.FinstoreConverterApp</mainClass> &lt;!&ndash; Укажи путь к своему классу запуска &ndash;&gt;-->
 <!--                </configuration>-->
 <!--            </plugin>-->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
