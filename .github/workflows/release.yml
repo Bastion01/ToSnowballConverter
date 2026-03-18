@@ -49,12 +49,11 @@ jobs:
           # принимает только цифры в --app-version
           VERSION=${GITHUB_REF_NAME#v}
           echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
-          
+
       - name: Install Playwright Browsers
-        shell: pwsh
+        shell: cmd
         run: |
-          # Устанавливаем браузер во временную папку
-          $env:PLAYWRIGHT_BROWSERS_PATH = "target/deploy/browsers"
+          set "PLAYWRIGHT_BROWSERS_PATH=target\deploy\browsers"
           mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
 
       - name: Build EXE (Lite - without browsers)
