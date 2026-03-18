@@ -8,10 +8,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 
 public class DocumentReader {
@@ -31,7 +34,7 @@ public class DocumentReader {
     public List<Document> readDocumentsFromMhtml(Set<File> mhtmlFiles, String waitSelector) {
         List<Document> documents = new ArrayList<>();
 
-        try (Playwright playwright = Playwright.create()) {
+        try (Playwright playwright = createOrReusePlaywrightEntity()) {
             // Запускаем браузер один раз для всех файлов ради производительности
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
             Page page = browser.newPage();
@@ -62,5 +65,17 @@ public class DocumentReader {
         }
 
         return documents;
+    }
+
+    private static Playwright createOrReusePlaywrightEntity() {
+        Path internalBrowsers = Paths.get("app/browsers");
+        Map<String, String> env = new HashMap<>();
+
+        if (Files.exists(internalBrowsers)) {
+            env.put("PLAYWRIGHT_BROWSERS_PATH", internalBrowsers.toAbsolutePath().toString());
+            return Playwright.create(new Playwright.CreateOptions().setEnv(env));
+        }
+
+        return Playwright.create();
     }
 }

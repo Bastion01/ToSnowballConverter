@@ -293,7 +293,8 @@ public class FinstoreConverterApp extends Application {
         directoryChooser.setTitle("Выберите папку для сохранения ZIP архива");
 
         // Устанавливаем текущую рабочую директорию как начальную
-        File defaultDirectory = new File(System.getProperty("user.dir"));
+        String downloadsPath = System.getProperty("user.home") + "/Downloads";
+        File defaultDirectory = new File(downloadsPath);
         if (defaultDirectory.exists()) {
             directoryChooser.setInitialDirectory(defaultDirectory);
         }
@@ -422,9 +423,6 @@ public class FinstoreConverterApp extends Application {
         cbSnowballCsv.setSelected(true);
         progressBar.setProgress(0);
         progressStatusLabel.setText("Готово! Файлы сохранены.");
-
-//        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Конвертация успешно завершена!");
-//        alert.showAndWait();
     }
 
     private void handleGlobalError(Exception e) {
@@ -447,10 +445,22 @@ public class FinstoreConverterApp extends Application {
     }
 
     private void saveErrorReport(Exception e) {
+        String appData = System.getenv("APPDATA");
+        File logDir = new File(appData, "FinstoreConverter/logs");
+
+        if (!logDir.exists()) {
+            logDir.mkdirs();
+        }
+
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm-ss"));
         String fileName = "ERROR_REPORT_" + timestamp + ".log";
-        try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
+        File logFile = new File(logDir, fileName);
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(logFile))) {
             e.printStackTrace(pw);
+            pw.println("--- System Info ---");
+            pw.println("OS: " + System.getProperty("os.name"));
+            pw.println("Java: " + System.getProperty("java.version"));
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }

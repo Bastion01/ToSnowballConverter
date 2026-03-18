@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
@@ -29,7 +29,19 @@ jobs:
       - name: Build Fat JAR with Maven
         run: mvn clean package -DskipTests
 
-      - name: Prepare Version String
+      - name: Get JAR Name and Prepare Deploy Folder
+        id: jar_info
+        shell: pwsh
+        run: |
+          # Автоматически находим созданный fat-jar в папке target
+          $fullPath = Get-ChildItem -Path target/*.jar | Select-Object -ExpandProperty Name -First 1
+          echo "JAR_NAME=$fullPath" >> $env:GITHUB_ENV
+
+          # Создаем чистую папку для упаковки
+          mkdir target/deploy
+          copy "target/$fullPath" "target/deploy/"
+
+      - name: Prepare Version
         id: prep_version
         shell: bash
         run: |
@@ -37,31 +49,73 @@ jobs:
           # принимает только цифры в --app-version
           VERSION=${GITHUB_REF_NAME#v}
           echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Install Playwright Browsers
+        shell: pwsh
+        run: |
+          # Устанавливаем браузер во временную папку
+          $env:PLAYWRIGHT_BROWSERS_PATH = "target/deploy/browsers"
+          mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
 
-      - name: Run jpackage (Java 21)
+      - name: Build EXE (Lite - without browsers)
         run: |
           jpackage `
             --type exe `
-            --dest dist `
-            --name "FinstoreConverter" `
-            --input target/ `
-            --main-jar FinstoreToSnowballConverter-1.0-SNAPSHOT.jar `
+            --dest dist/lite `
+            --name "FinstoreConverter-${{ steps.prep_version.outputs.clean_version }}-lite" `
+            --input target/deploy `
+            --exclude target/deploy/browsers `
+            --main-jar ${{ env.JAR_NAME }} `
             --main-class com.converter.Launcher `
-            --win-dir-chooser `
-            --win-shortcut `
-            --win-menu `
+            --win-dir-chooser --win-shortcut --win-menu `
             --icon src/main/resources/icons/app_icon.ico `
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC"
         shell: pwsh
 
+      - name: Build EXE (Full - with browsers)
+        run: |
+          jpackage `
+            --type exe `
+            --dest dist/full `
+            --name "FinstoreConverter-${{ steps.prep_version.outputs.clean_version }}" `
+            --input target/deploy `
+            --main-jar ${{ env.JAR_NAME }} `
+            --main-class com.converter.Launcher `
+            --win-dir-chooser --win-shortcut --win-menu `
+            --icon src/main/resources/icons/app_icon.ico `
+            --vendor "Bastion01" `
+            --app-version ${{ steps.prep_version.outputs.clean_version }} `
+            --java-options "-XX:+UseG1GC"
+        shell: pwsh
+
+      - name: Generate Changelog
+        id: github_release_notes
+        uses: mikepenz/release-changelog-builder-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare Release Notes
+        shell: bash
+        run: |
+          VERSION=${{ steps.prep_version.outputs.clean_version }}
+          # 1. Берем ваш шаблон и вставляем версию
+          sed "s/{{VERSION}}/$VERSION/g" .github/release-template.md > release_notes_final.md
+          
+          # 2. Добавляем в конец сгенерированный список изменений от GitHub
+          # (Или вставляем вместо комментария-заглушки)
+          echo "${{ steps.github_release_notes.outputs.changelog }}" >> release_notes_final.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/*.exe
+          body_path: release_notes_final.md  # Используем созданный файл как описание
+          files: |
+            dist/lite/*.exe
+            dist/full/*.exe
           draft: true
           prerelease: false
-          generate_release_notes: true
+          generate_release_notes: false # Отключаем авто-генерацию, так как у нас свой текст
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
