@@ -1,0 +1,2 @@
+to understand necessary modules for jpackage execute command below after clean package
+jdeps --print-module-deps --ignore-missing-deps --multi-release 21 --class-path "target/*" target/FinstoreToSnowballConverter-1.0.jar

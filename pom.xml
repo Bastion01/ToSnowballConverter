@@ -40,11 +40,13 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>21</version>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>21</version>
+            <classifier>win</classifier>
         </dependency>
         <dependency>
             <groupId>io.github.mkpaz</groupId>
@@ -97,6 +99,14 @@
                             </transformers>
                             <!-- Исключаем подписи зависимостей, чтобы избежать SecurityException -->
                             <filters>
+                                <filter>
+                                    <artifact>com.microsoft.playwright:driver-bundle</artifact>
+                                    <excludes>
+                                        <exclude>driver/linux/**</exclude>
+                                        <exclude>driver/mac/**</exclude>
+                                        <!-- Оставляем только driver/windows -->
+                                    </excludes>
+                                </filter>
                                 <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>

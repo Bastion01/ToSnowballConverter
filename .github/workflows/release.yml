@@ -74,7 +74,8 @@ jobs:
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC" `
-            --add-modules java.base,java.desktop,java.xml,jdk.unsupported,jdk.httpserver,java.naming,java.management
+            --add-modules java.base,java.xml,java.net.http,java.naming,jdk.unsupported,jdk.crypto.ec `
+            --jlink-options "--strip-debug --no-man-pages --no-header-files --compress 2"
         shell: pwsh
 
       - name: Install Playwright Browsers
@@ -97,7 +98,8 @@ jobs:
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC" `
-            --add-modules java.base,java.desktop,java.xml,jdk.unsupported,jdk.httpserver,java.naming,java.management
+            --add-modules java.base,java.xml,java.net.http,java.naming,jdk.unsupported,jdk.crypto.ec `
+            --jlink-options "--strip-debug --no-man-pages --no-header-files --compress 2"
         shell: pwsh
 
       - name: Generate Changelog
