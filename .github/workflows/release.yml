@@ -51,12 +51,6 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Install Playwright Browsers
-        shell: cmd
-        run: |
-          set "PLAYWRIGHT_BROWSERS_PATH=target\deploy\browsers"
-          mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
-
       - name: Build EXE (Lite - without browsers)
         run: |
           jpackage `
@@ -64,7 +58,6 @@ jobs:
             --dest dist/lite `
             --name "FinstoreConverter-${{ steps.prep_version.outputs.clean_version }}-lite" `
             --input target/deploy `
-            --exclude target/deploy/browsers `
             --main-jar ${{ env.JAR_NAME }} `
             --main-class com.converter.Launcher `
             --win-dir-chooser --win-shortcut --win-menu `
@@ -73,6 +66,12 @@ jobs:
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC"
         shell: pwsh
+
+      - name: Install Playwright Browsers
+        shell: cmd
+        run: |
+          set "PLAYWRIGHT_BROWSERS_PATH=target\deploy\browsers"
+          mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chromium"
 
       - name: Build EXE (Full - with browsers)
         run: |
