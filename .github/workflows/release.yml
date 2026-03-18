@@ -74,7 +74,7 @@ jobs:
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC"
-            '--jlink-options' '--strip-debug --no-man-pages --no-header-files --compress=2'
+            --jlink-options "--strip-debug --no-man-pages --no-header-files --compress=2"
         shell: pwsh
 
       - name: Install Playwright Browsers
@@ -97,7 +97,7 @@ jobs:
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC"
-            '--jlink-options' '--strip-debug --no-man-pages --no-header-files --compress=2'
+            --jlink-options "--strip-debug --no-man-pages --no-header-files --compress=2"
         shell: pwsh
 
       - name: Generate Changelog
