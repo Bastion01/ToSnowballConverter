@@ -33,7 +33,7 @@ jobs:
       # нам нужно только убедиться, что он в PATH (обычно это так).
 
       - name: Build Fat JAR with Maven
-        run: mvn clean package -DskipTests -Dsentry.dsn.env=${{ secrets.SENTRY_DSN }}
+        run: mvn clean package -DskipTests "-Dsentry.dsn.env=${{ secrets.SENTRY_DSN }}"
         env:
           SENTRY_DSN_PROPS: ${{ secrets.SENTRY_DSN }}
 
