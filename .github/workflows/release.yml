@@ -9,7 +9,7 @@ on:
       version:
         description: 'Build Version (X.X.X, f.e. 1.0.1)'
         required: true
-        default: 'manual-build'
+        default: '0.0.0'
 
 permissions:
   contents: write
@@ -33,7 +33,7 @@ jobs:
       # нам нужно только убедиться, что он в PATH (обычно это так).
 
       - name: Build Fat JAR with Maven
-        run: mvn clean package -DskipTests -Dsentry.dsn.env=${{ secrets.SENTRY_DSN }}
+        run: mvn clean package -DskipTests "-Dsentry.dsn.env=${{ secrets.SENTRY_DSN }}"
         env:
           SENTRY_DSN_PROPS: ${{ secrets.SENTRY_DSN }}
 
@@ -67,7 +67,7 @@ jobs:
           jpackage `
             --type exe `
             --dest dist/lite `
-            --name "FinstoreConverter-${{ steps.prep_version.outputs.clean_version }}-lite" `
+            --name "FinstoreConverter-lite" `
             --input target/deploy `
             --main-jar ${{ env.JAR_NAME }} `
             --main-class com.converter.Launcher `
@@ -91,7 +91,7 @@ jobs:
           jpackage `
             --type exe `
             --dest dist/full `
-            --name "FinstoreConverter-${{ steps.prep_version.outputs.clean_version }}" `
+            --name "FinstoreConverter" `
             --input target/deploy `
             --main-jar ${{ env.JAR_NAME }} `
             --main-class com.converter.Launcher `
