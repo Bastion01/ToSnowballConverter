@@ -78,8 +78,10 @@ public class DocumentReader {
 
         if (Files.exists(internalBrowsers)) {
             Map<String, String> env = new HashMap<>();
-            env.put("PLAYWRIGHT_BROWSERS_PATH", internalBrowsers.toAbsolutePath().toString());
-            logger.debug("Full version detected. Using internal browsers.");
+            String internalBrowsersPath = internalBrowsers.toAbsolutePath().toString();
+            env.put("PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD", "1");
+            env.put("PLAYWRIGHT_BROWSERS_PATH", internalBrowsersPath);
+            logger.debug("Full version detected. Using internal browsers. Path: {}", internalBrowsersPath);
             return Playwright.create(new Playwright.CreateOptions().setEnv(env));
         }
 

@@ -76,7 +76,7 @@ jobs:
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC -Xmx1g" `
-            --add-modules java.base,java.xml,java.net.http,java.naming,java.desktop,java.sql,jdk.unsupported,jdk.crypto.ec,jdk.zipfs `
+            --add-modules java.base,java.xml,java.net.http,java.naming,java.desktop,java.sql,jdk.unsupported,jdk.crypto.ec,jdk.zipfs,jdk.charsets `
             --jlink-options "--strip-debug --no-man-pages --no-header-files --compress 1"
         shell: pwsh
 
@@ -100,7 +100,7 @@ jobs:
             --vendor "Bastion01" `
             --app-version ${{ steps.prep_version.outputs.clean_version }} `
             --java-options "-XX:+UseG1GC -Xmx1g" `
-            --add-modules java.base,java.xml,java.net.http,java.naming,java.desktop,java.sql,jdk.unsupported,jdk.crypto.ec,jdk.zipfs `
+            --add-modules java.base,java.xml,java.net.http,java.naming,java.desktop,java.sql,jdk.unsupported,jdk.crypto.ec,jdk.zipfs,jdk.charsets `
             --jlink-options "--strip-debug --no-man-pages --no-header-files --compress 1"
         shell: pwsh
 
