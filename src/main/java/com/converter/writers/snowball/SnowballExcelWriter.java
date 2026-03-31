@@ -36,6 +36,10 @@ public class SnowballExcelWriter {
     private final DecimalFormat priceFormat = new DecimalFormat("#.##########", new DecimalFormatSymbols(Locale.US));
 
     public File writeSnowballReport(List<TableRow> data) {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        Path reportPath = Paths.get(tempDir).resolve(FILENAME);
+        File reportFile = reportPath.toFile();
+
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Snowball Data");
 
@@ -74,10 +78,6 @@ public class SnowballExcelWriter {
                 sheet.autoSizeColumn(i);
             }
 
-            // 4. Сохранение
-            String tempDir = System.getProperty("java.io.tmpdir");
-            Path reportPath = Paths.get(tempDir).resolve(FILENAME);
-            File reportFile = reportPath.toFile();
             try (FileOutputStream fileOut = new FileOutputStream(reportFile)) {
                 workbook.write(fileOut);
             }
@@ -85,7 +85,7 @@ public class SnowballExcelWriter {
         } catch (IOException e) {
             throw new RuntimeException("Error occurred during Snowball Excel file creation: " + e.getMessage(), e);
         }
-        return new File(FILENAME);
+        return reportFile;
     }
 
     /**

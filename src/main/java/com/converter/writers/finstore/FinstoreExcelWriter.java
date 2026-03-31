@@ -21,6 +21,10 @@ public class FinstoreExcelWriter {
     private FinstoreExcelWriter() {}
 
     public File writeReport(TheadRow headers, List<TableRow> data) {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        Path reportPath = Paths.get(tempDir).resolve(FILENAME);
+        File reportFile = reportPath.toFile();
+
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Транзакции");
 
@@ -60,10 +64,6 @@ public class FinstoreExcelWriter {
                 sheet.autoSizeColumn(i);
             }
 
-            // 5. Сохранение
-            String tempDir = System.getProperty("java.io.tmpdir");
-            Path reportPath = Paths.get(tempDir).resolve(FILENAME);
-            File reportFile = reportPath.toFile();
             try (FileOutputStream fileOut = new FileOutputStream(reportFile)) {
                 workbook.write(fileOut);
             }
@@ -71,7 +71,7 @@ public class FinstoreExcelWriter {
         } catch (IOException e) {
             throw new RuntimeException("Error occurred during excel file creation: " + e.getMessage(), e);
         }
-        return new File(FILENAME);
+        return reportFile;
     }
 
     private CellStyle createHeaderStyle(Workbook workbook) {
